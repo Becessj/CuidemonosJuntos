@@ -1,7 +1,10 @@
 {
   "expo": {
-    "name": "Prueba",
-    "slug": "Prueba",
+    "assetBundlePatterns": [
+      "assets/**/*"
+    ],
+    "name": "CuidemonosJuntosApp",
+    "slug": "CuidemonosJuntosApp",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -18,10 +21,16 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.gpadeveloper.CuidemonosJuntosApp"
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "dfd2090f-3864-43e7-8db1-ed1419e1b8af"
+      }
     }
   }
 }
