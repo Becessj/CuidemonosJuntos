@@ -121,9 +121,6 @@ const BagScreen = () => {
       setProgress(0);
     }
   };
-  
-  
-  
 
   const openModal = async (title) => {
     setCurrentTitle(title);
@@ -179,18 +176,22 @@ const BagScreen = () => {
   );
 
   const renderChecklistItem = ({ item, index }) => (
-    <View style={styles.checklistItem}>
+    <TouchableOpacity onPress={() => toggleItem(index)} style={styles.checklistItem}>
+      <Image source={item.image} style={styles.checklistImage} />
       <Text style={styles.checklistText}>{item.text}</Text>
       <Switch
         value={item.completed}
         onValueChange={() => toggleItem(index)}
+        trackColor={{ false: '#767577', true: '#81b0ff' }}
+        thumbColor={item.completed ? '#f5dd4b' : '#f4f3f4'}
       />
       {item.completed && item.subChecklist && (
         <FlatList
           data={item.subChecklist}
           renderItem={({ item: subItem, index: subIndex }) => (
             <View style={styles.subChecklistItem}>
-              <Text style={styles.checklistText}>{subItem.text}</Text>
+              <Image source={subItem.image} style={styles.checklistImage} />
+              {/* <Text style={styles.checklistText}>{subItem.text}</Text> */}
               <Switch
                 value={subItem.completed}
                 onValueChange={() => {
@@ -202,121 +203,122 @@ const BagScreen = () => {
                     return newChecklist;
                   });
                 }}
+                trackColor={{ false: '#767577', true: '#81b0ff' }}
+                thumbColor={subItem.completed ? '#f5dd4b' : '#f4f3f4'}
               />
             </View>
           )}
           keyExtractor={(subItem) => subItem.id}
+          numColumns={2}
+          columnWrapperStyle={styles.row}
+          contentContainerStyle={styles.listContent}
         />
       )}
-    </View>
+    </TouchableOpacity>
   );
+  
   
 
   return (
     <BackgroundWrapper>
-    <SafeAreaView style={styles.container}>
-      {showFullLottie && (
-        <View style={styles.fullscreenLottieContainer}>
-          <LottieView
-            source={require('../../assets/celebration.json')}
-            autoPlay
-            loop={false}
-            style={styles.fullscreenLottie}
-          />
-        </View>
-      )}
-      {/* <Text style={styles.title}>Estado de tu mochila para emergencias</Text> */}
-      <View style={styles.progressContainer}>
-        {progress < 30 ? (
-          <View style={styles.questionContainer}>
-             {/* <Text style={styles.questionText}>¡Alcanzar el 100% para obtener tu premio!</Text> */}
+      <SafeAreaView style={styles.container}>
+        {showFullLottie && (
+          <View style={styles.fullscreenLottieContainer}>
             <LottieView
-              source={require('../../assets/questionLottie.json')}
+              source={require('../../assets/celebration.json')}
               autoPlay
-              loop
-              style={styles.questionLottie}
+              loop={false}
+              style={styles.fullscreenLottie}
             />
-           
           </View>
-        ) : (
-          <Svg width={400} height={400} viewBox="0 0 400 400">
-          <Defs>
-            <Mask id="mask" x="0" y="0" width="400" height="400">
-              <Rect x="0" y="0" width="400" height="400" fill="black" />
-              <Rect
+        )}
+        <View style={styles.progressContainer}>
+          {progress < 30 ? (
+            <View style={styles.questionContainer}>
+              <LottieView
+                source={require('../../assets/questionLottie.json')}
+                autoPlay
+                loop
+                style={styles.questionLottie}
+              />
+            </View>
+          ) : (
+            <Svg width={300} height={300} viewBox="0 0 300 300">
+              <Defs>
+                <Mask id="mask" x="0" y="0" width="300" height="300">
+                  <Rect x="0" y="0" width="300" height="300" fill="black" />
+                  <Rect
+                    x="0"
+                    y="0"
+                    width={(300 * progress) / 100}
+                    height="300"
+                    fill="white"
+                  />
+                </Mask>
+              </Defs>
+              <SvgImage
                 x="0"
                 y="0"
-                width={(400 * progress) / 100}
-                height="400"
-                fill="white"
+                width="300"
+                height="300"
+                href={imageSource.animal}
+                mask="url(#mask)"
               />
-            </Mask>
-          </Defs>
-          <SvgImage
-            x="0"
-            y="0"
-            width="400"
-            height="400"
-            href={imageSource.animal}
-            mask="url(#mask)"
-          />
-       
-        </Svg>
-        
-        )}
-           <View style={styles.progressTextContainer}>
+            </Svg>
+          )}
+          <View style={styles.progressTextContainer}>
             <Text style={styles.progressText}>{`${Math.round(progress)}%`}</Text>
             <CustomText type='titlebag'>
               {progress >= 100 ? '¡Lo Lograste!' : ''}
             </CustomText>
           </View>
-      </View>
-      <FlatList
-        data={cards}
-        renderItem={renderItem}
-        keyExtractor={(item) => item.title}
-        numColumns={2}
-        columnWrapperStyle={styles.columnWrapper} // Estilo para espaciar las columnas
-        contentContainerStyle={styles.listContent}
-      />
-      <View style={styles.bottomSpacer} />
-<Modal
-  visible={modalVisible}
-  transparent={true}
-  animationType="fade"
-  onRequestClose={() => setModalVisible(false)}
->
-  <TouchableOpacity 
-    style={styles.modalContainer} 
-    activeOpacity={1} 
-    onPress={() => setModalVisible(false)}
-  >
-    <TouchableOpacity 
-      style={styles.modalContent} 
-      activeOpacity={1} 
-      onPress={() => {}} // Esto evita que el modal se cierre si haces clic dentro del contenido
-    >
-      <TouchableOpacity
-        style={styles.closeButton}
-        onPress={() => setModalVisible(false)}
-      >
-        <Icon name="close" size={30} color="#FF6347" />
-      </TouchableOpacity>
-      <Text style={styles.modalTitle}>{currentTitle}</Text>
-      <FlatList
-        data={currentChecklist}
-        renderItem={renderChecklistItem}
-        keyExtractor={(item) => item.id}
-      />
-    </TouchableOpacity>
-  </TouchableOpacity>
-</Modal>
-
-    </SafeAreaView>
+        </View>
+        <FlatList
+          data={cards}
+          renderItem={renderItem}
+          keyExtractor={(item) => item.title}
+          numColumns={2}
+          columnWrapperStyle={styles.columnWrapper}
+          contentContainerStyle={styles.listContent}
+        />
+        <View style={styles.bottomSpacer} />
+        <Modal
+          visible={modalVisible}
+          transparent={true}
+          animationType="fade"
+          onRequestClose={() => setModalVisible(false)}
+        >
+          <TouchableOpacity 
+            style={styles.modalContainer} 
+            activeOpacity={1} 
+            onPress={() => setModalVisible(false)}
+          >
+            <TouchableOpacity 
+              style={styles.modalContent} 
+              activeOpacity={1} 
+              onPress={() => {}} // Esto evita que el modal se cierre si haces clic dentro del contenido
+            >
+              <TouchableOpacity
+                style={styles.closeButton}
+                onPress={() => setModalVisible(false)}
+              >
+                <Icon name="close" size={30} color="#FF6347" />
+              </TouchableOpacity>
+              <Text style={styles.modalTitle}>{currentTitle}</Text>
+              <FlatList
+                data={currentChecklist}
+                renderItem={renderChecklistItem}
+                keyExtractor={(item) => item.id}
+                numColumns={2}
+                contentContainerStyle={styles.modalChecklistContainer}
+              />
+            </TouchableOpacity>
+          </TouchableOpacity>
+        </Modal>
+      </SafeAreaView>
     </BackgroundWrapper>
   );
 };
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -339,8 +341,8 @@ const styles = StyleSheet.create({
     marginTop:  -70, // Eliminar cualquier margen superior
   },
   questionLottie: {
-    width: 600,
-    height: 400,
+    width: 450,
+    height: 350,
   },
   questionText: {
     fontSize: 18,
@@ -416,21 +418,17 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-end',
   },
   modalTitle: {
-    fontSize: 20,
+    fontSize: 25,
     fontWeight: 'bold',
     marginBottom: 20,
     textAlign: 'center',
+    color:'#7ed957'
   },
-  checklistItem: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
-  },
+
   checklistText: {
-    fontSize: 11,
+    fontSize: 14,
+    color:'#7ed957',
+    fontWeight:'bold'
   },
   columnWrapper: {
     justifyContent: 'space-between',
@@ -439,14 +437,59 @@ const styles = StyleSheet.create({
     height: 50,  // Ajusta la altura del espacio según lo que necesites
   },
   listContent: {
-    paddingBottom: 30, // Ajusta este valor según el tamaño de tu barra de pestañas
+    paddingBottom: 20, // Ajusta este valor según el tamaño de tu barra de pestañas
   },
-  subChecklistItem: {
 
+  checklistItemContainer: {
     flexDirection: 'row',
+    justifyContent: 'space-between',
+    flexWrap: 'wrap', // Permite que los elementos se envuelvan en la siguiente línea
+  },
+  checklistItem: {
+    width: '50%', // Ocupa aproximadamente la mitad de la pantalla
+    // flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    borderBottomWidth: 1,
+    borderBottomColor: '#e0e0e0',
+    borderWidth: 1,
+    borderColor: '#d0d0d0',
+    borderRadius: 10,
+    marginBottom: 10,
+    backgroundColor: '#f9f9f9',
+    flex: 1,
+    flexDirection: 'column',
+    paddingVertical: 10,
+    paddingHorizontal: 10,
+    marginHorizontal: 5,
+
+  },
+  checklistImage: { 
+    width: 80,
+    height: 80,
+    resizeMode: 'contain',
+    marginRight: 10,
+  },
+  modalChecklistContainer: {
+    paddingHorizontal: 10,
+  },
+  subChecklistItem: {
+    
+    flex: 1, // Permite que el elemento ocupe el espacio disponible de la columna
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 30,
+    margin: 1,
+    backgroundColor: '#f9f9f9',
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#ddd',
+    overflow: 'hidden', // Oculta cualquier contenido que se desborde
+  },
+  
+  row: {
+    marginBottom: 1,
   },
 });
 
-export default BagScreen;
+export default BagScreen; 

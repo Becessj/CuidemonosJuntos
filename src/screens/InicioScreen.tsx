@@ -119,8 +119,8 @@ const InicioScreen = () => {
                     color={star <= (ratings[randomEntry.id] || 0) ? '#FFD700' : '#d3d3d3'}
                   />
                 ))}
-                <Icon name="clock-o" size={24} color="#000" />
-                <Icon name="eye" size={24} color="#000" />
+                <Icon name="clock-o" size={20} color="#7ed957" />
+                <Icon name="eye" size={20} color="#7ed957" />
               </View>
             </TouchableOpacity>
           )}

@@ -217,12 +217,14 @@ const App = () => {
   useEffect(() => {
     const loadProfileImage = async () => {
       try {
+      
         const storedImage = await AsyncStorage.getItem('@profile_image');
+   
         if (storedImage) {
           setProfileImage(storedImage);
         }
       } catch (error) {
-        console.error('Error al cargar la imagen de perfil', error);
+        
       }
     };
 

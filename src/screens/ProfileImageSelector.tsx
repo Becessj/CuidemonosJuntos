@@ -14,41 +14,47 @@ const ProfileImageSelector = () => {
   const [showImageList, setShowImageList] = useState(false);
   const [animation] = useState(new Animated.Value(0)); // Valor inicial de animación
 
+  
   useEffect(() => {
     const loadImage = async () => {
       try {
         const storedImage = await AsyncStorage.getItem('@profile_image');
+       
         if (storedImage) {
           setSelectedImage({ uri: storedImage });
         } else {
           // Guardar la imagen por defecto si no hay ninguna guardada
           const defaultImageUri = Image.resolveAssetSource(defaultImage).uri;
+         
           await AsyncStorage.setItem('@profile_image', defaultImageUri);
           setSelectedImage(defaultImage);
         }
       } catch (error) {
-        console.error('Error loading image from AsyncStorage', error);
+       
       }
     };
-
+  
     loadImage();
   }, []);
+  
 
   const handleImageSelect = async (image) => {
     try {
       const imageUri = Image.resolveAssetSource(image).uri;
+
       await AsyncStorage.setItem('@profile_image', imageUri);
       setSelectedImage(image);
-      setShowImageList(false); // Ocultar la lista de imágenes después de seleccionar
+      setShowImageList(false);
       Animated.timing(animation, {
-        toValue: 0, // Volver a ocultar la lista de imágenes
+        toValue: 0,
         duration: 300,
         useNativeDriver: false,
       }).start();
     } catch (error) {
-      Alert.alert('Error', 'No se pudo guardar la imagen de perfil');
+      
     }
   };
+  
 
   const toggleImageList = () => {
     if (showImageList) {
