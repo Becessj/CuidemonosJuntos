@@ -16,6 +16,7 @@ const CardDetailScreen = ({ route }) => {
   const leftArrow = require('../../assets/leftArrow.png');
   const [rating, setRating] = useState(0);
 
+  
 const handleRatingUpdate = (newRating) => {
   // console.log('Calificación actualizada:', newRating);
   setRating(newRating); // Actualiza el estado local
@@ -65,15 +66,13 @@ const handleRatingUpdate = (newRating) => {
           <TouchableOpacity style={styles.backButton} onPress={handleBack}>
             <Image source={leftArrow} style={styles.arrowImage} />
           </TouchableOpacity>
-
-          
           
           <View style={styles.textContainer}>
             <CustomText type='subtitle'>{item.subtitle}</CustomText>
           </View>
           <View style={styles.footer}>
             <TouchableOpacity onPress={handleSpeech} style={styles.speechButton}>
-              <Icon name={isSpeaking ? "volume-mute-outline" : "volume-high-outline"} size={24} color="#fff" />
+              <Icon name={isSpeaking ? "volume-off-sharp" : "volume-high"} size={24} color="#fff" />
               <Text style={styles.speechButtonText}>{isSpeaking ? "Detener" : "Escuchar"}</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.button} onPress={handleShare}>
@@ -117,12 +116,12 @@ const styles = StyleSheet.create({
   },
   headerContainer: {
     position: 'absolute',
-    bottom: -60,
+    bottom: -80,
     left: 20,
     right: 20,
     alignItems: 'center',
     borderRadius: 10,
-    backgroundColor: '#f0f0f0',
+
 
   },
   backButton: {
@@ -136,7 +135,7 @@ const styles = StyleSheet.create({
   },
   textContainer: {
     padding: 20,
-    bottom: 30,
+    bottom: 10,
   },
   speechButton: {
     flexDirection: 'row',
@@ -157,7 +156,7 @@ const styles = StyleSheet.create({
     padding: 20,
     backgroundColor: 'white',
     borderTopColor: '#ddd',
-    bottom: 50,
+    bottom: 10,
   },
   button: {
     flexDirection: 'row',

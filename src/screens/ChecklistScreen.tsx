@@ -39,6 +39,18 @@ const ChecklistScreen = ({ route }) => {
     ],
   };
 
+  
+// const clearAsyncStorage = async () => {
+//   try {
+//     await AsyncStorage.clear();
+//     console.log('AsyncStorage cleared successfully.');
+//   } catch (error) {
+//     console.error('Error clearing AsyncStorage:', error);
+//   }
+// }; 
+// clearAsyncStorage()     
+    
+
   useEffect(() => {
     const loadChecklist = async () => {
       const savedChecklist = await AsyncStorage.getItem(title);

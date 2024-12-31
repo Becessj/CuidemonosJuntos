@@ -9,6 +9,7 @@ import { dataBox } from '../data/dataBox';
 const ReserveBoxScreen = () => {
   const [items, setItems] = useState(dataBox);
   const [showLottie, setShowLottie] = useState(false);
+  const [starsUpdated, setStarsUpdated] = useState(false); // Nuevo estado para evitar múltiples actualizaciones de estrellas
 
   useEffect(() => {
     const loadItems = async () => {
@@ -23,14 +24,35 @@ const ReserveBoxScreen = () => {
   useEffect(() => {
     if (items.every(item => item.completed)) {
       setShowLottie(true);
+      setStarsUpdated(true); // Evita que se actualice múltiples veces
+      updateStars(5); // Actualiza las estrellas cuando se completen todos los ítems
       const timer = setTimeout(() => {
         setShowLottie(false);
       }, 3000);
 
       return () => clearTimeout(timer);
     }
-  }, [items]);
+  }, [items, starsUpdated]);
+  const getStars = async () => {
+    try {
+      const stars = await AsyncStorage.getItem('stars');
+      return stars ? parseInt(stars) : 0;
+    } catch (error) {
+      // console.error('Error obteniendo estrellas', error);
+      return 0;
+    }
+  };
 
+  const updateStars = async (additionalStars: number) => {
+    try {
+      const currentStars = await getStars();
+      const newStarCount = currentStars + additionalStars;
+      await AsyncStorage.setItem('stars', newStarCount.toString());
+      // console.log(`Estrellas actualizadas: ${newStarCount}`);
+    } catch (error) {
+      // console.error('Error actualizando estrellas', error);
+    }
+  };
   const toggleItem = async (index: number) => {
     const newItems = [...items];
     newItems[index].completed = !newItems[index].completed;

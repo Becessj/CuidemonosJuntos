@@ -14,10 +14,13 @@ const styles = StyleSheet.create({
   },
   title: {
  
-    fontSize: 25,
+    fontSize: 22,
     textAlign: 'center',
-    color: 'purple',
-    fontWeight: 'bold'
+    color: '#7ed957',
+    fontWeight: 'bold',
+    textTransform: 'uppercase',
+    padding:6,
+    
   },
 
   titlebag: {

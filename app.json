@@ -3,9 +3,9 @@
     "assetBundlePatterns": [
       "assets/**/*"
     ],
-    "name": "CuidemonosJuntosApp",
+    "name": "PREPARATE YA",
     "slug": "CuidemonosJuntosApp",
-    "version": "1.0.0",
+    "version": "2.1.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -18,6 +18,7 @@
       "supportsTablet": true
     },
     "android": {
+      "versionCode": 3,   
       "adaptiveIcon": {
         "foregroundImage": "./assets/icon.png",
         "backgroundColor": "#ffffff"
@@ -31,6 +32,12 @@
       "eas": {
         "projectId": "dfd2090f-3864-43e7-8db1-ed1419e1b8af"
       }
+    },
+    "notification": {
+      "icon": "./assets/icon.png",
+      "color": "#000000",
+      "androidMode": "default",
+      "androidCollapsedTitle": "Notificaciones"
     }
   }
 }

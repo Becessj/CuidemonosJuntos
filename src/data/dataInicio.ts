@@ -45,3 +45,160 @@ export const DATAINICIO = [
     correctAnswer: 'Supervivencia',
   },
 ];
+
+
+
+export const initialRounds = [
+  [ //Bebidas y alimentos no perecibles
+    { image: require('../../assets/agua1.png'), correct: false },
+    { image: require('../../assets/agua2.png'), correct: false },
+    { image: require('../../assets/agua3.png'), correct: false },
+    { image: require('../../assets/correct_agua.png'), correct: true },
+  ],
+  [ 
+    { image: require('../../assets/correct_noperecibles.png'), correct: true },
+    { image: require('../../assets/noperecibles1.png'), correct: false },
+    { image: require('../../assets/noperecibles2.png'), correct: false },
+    { image: require('../../assets/noperecibles3.png'), correct: false },
+  ],
+  [
+    { image: require('../../assets/correct_cereales.png'), correct: true },
+    { image: require('../../assets/noperecibles1.png'), correct: false },
+    { image: require('../../assets/noperecibles2.png'), correct: false },
+    { image: require('../../assets/noperecibles3.png'), correct: false },
+  ],
+  [
+    { image: require('../../assets/correct_chocolate.png'), correct: true },
+    { image: require('../../assets/noperecibles1.png'), correct: false },
+    { image: require('../../assets/noperecibles2.png'), correct: false },
+    { image: require('../../assets/noperecibles3.png'), correct: false },
+  ],
+  [ //Comunicación
+    { image: require('../../assets/correct_agenda.png'), correct: true },
+    { image: require('../../assets/noperecibles1.png'), correct: false },
+    { image: require('../../assets/noperecibles2.png'), correct: false },
+    { image: require('../../assets/noperecibles3.png'), correct: false },
+  ],
+  [
+    { image: require('../../assets/correct_pilas.png'), correct: true },
+    { image: require('../../assets/noperecibles1.png'), correct: false },
+    { image: require('../../assets/noperecibles2.png'), correct: false },
+    { image: require('../../assets/noperecibles3.png'), correct: false },
+  ],
+  [
+    { image: require('../../assets/correct_radio.png'), correct: true },
+    { image: require('../../assets/radio1.png'), correct: false },
+    { image: require('../../assets/radio2.png'), correct: false },
+    { image: require('../../assets/radio3.png'), correct: false },
+  ],
+  [
+    { image: require('../../assets/correct_utiles.png'), correct: true },
+    { image: require('../../assets/utiles1.png'), correct: false },
+    { image: require('../../assets/utiles2.png'), correct: false },
+    { image: require('../../assets/utiles3.png'), correct: false },
+  ],
+  [
+    { image: require('../../assets/correct_silbato.png'), correct: false },
+    { image: require('../../assets/correct_botiquin1.png'), correct: true },
+    { image: require('../../assets/botiquin2.png'), correct: false },
+    { image: require('../../assets/botiquin3.png'), correct: false },
+  ],
+  [
+    { image: require('../../assets/correct_linterna.png'), correct: true },
+    { image: require('../../assets/linterna1.png'), correct: false },
+    { image: require('../../assets/linterna2.png'), correct: false },
+    { image: require('../../assets/linterna3.png'), correct: false },
+  ],
+  [ //Diversos
+    { image: require('../../assets/cuchilla1.png'), correct: false },
+    { image: require('../../assets/cuchilla2.png'), correct: false },
+    { image: require('../../assets/cuchilla3.png'), correct: false },
+    { image: require('../../assets/correct_bolsasplasticas.png'), correct: true },
+  ],
+  [
+    { image: require('../../assets/correct_cintamultiusos.png'), correct: true },
+    { image: require('../../assets/mantas1.png'), correct: false },
+    { image: require('../../assets/mantas2.png'), correct: false },
+    { image: require('../../assets/mantas3.png'), correct: false },
+  ],
+  [
+    { image: require('../../assets/agua1.png'), correct: false },
+    { image: require('../../assets/agua2.png'), correct: false },
+    { image: require('../../assets/agua3.png'), correct: false },
+    { image: require('../../assets/correct_cuchilla.png'), correct: true },
+  ],
+  [
+    { image: require('../../assets/correct_cuerda.png'), correct: true },
+    { image: require('../../assets/noperecibles1.png'), correct: false },
+    { image: require('../../assets/noperecibles2.png'), correct: false },
+    { image: require('../../assets/noperecibles3.png'), correct: false },
+  ],
+  [
+    { image: require('../../assets/botiquin4.png'), correct: false },
+    { image: require('../../assets/correct_encendedor.png'), correct: true },
+    { image: require('../../assets/botiquin2.png'), correct: false },
+    { image: require('../../assets/botiquin3.png'), correct: false },
+  ],
+  [
+    { image: require('../../assets/cuchilla1.png'), correct: false },
+    { image: require('../../assets/cuchilla2.png'), correct: false },
+    { image: require('../../assets/cuchilla3.png'), correct: false },
+    { image: require('../../assets/correct_guantes.png'), correct: true },
+  ],
+
+  [
+    { image: require('../../assets/correct_mascarillas.png'), correct: true },
+    { image: require('../../assets/mantas1.png'), correct: false },
+    { image: require('../../assets/mantas2.png'), correct: false },
+    { image: require('../../assets/mantas3.png'), correct: false },
+  ],
+  [
+    { image: require('../../assets/correct_plastico.png'), correct: true },
+    { image: require('../../assets/radio1.png'), correct: false },
+    { image: require('../../assets/radio2.png'), correct: false },
+    { image: require('../../assets/radio3.png'), correct: false },
+  ],
+  [
+    { image: require('../../assets/correct_tapetepiso.png'), correct: true },
+    { image: require('../../assets/utiles1.png'), correct: false },
+    { image: require('../../assets/utiles2.png'), correct: false },
+    { image: require('../../assets/utiles3.png'), correct: false },
+  ],
+  [ //Higiene
+    { image: require('../../assets/cuchilla1.png'), correct: false },
+    { image: require('../../assets/cuchilla2.png'), correct: false },
+    { image: require('../../assets/cuchilla3.png'), correct: false },
+    { image: require('../../assets/correct_botiquin.png'), correct: true },
+  ],
+  [
+    { image: require('../../assets/correct_dinero.png'), correct: true },
+    { image: require('../../assets/mantas1.png'), correct: false },
+    { image: require('../../assets/mantas2.png'), correct: false },
+    { image: require('../../assets/mantas3.png'), correct: false },
+  ],
+  
+  [
+    { image: require('../../assets/agua1.png'), correct: false },
+    { image: require('../../assets/agua2.png'), correct: false },
+    { image: require('../../assets/agua3.png'), correct: false },
+    { image: require('../../assets/correct_gel.png'), correct: true },
+  ],
+  [
+    { image: require('../../assets/correct_mantas.png'), correct: true },
+    { image: require('../../assets/noperecibles1.png'), correct: false },
+    { image: require('../../assets/noperecibles2.png'), correct: false },
+    { image: require('../../assets/noperecibles3.png'), correct: false },
+  ],
+  [
+    { image: require('../../assets/botiquin4.png'), correct: false },
+    { image: require('../../assets/correct_papel.png'), correct: true },
+    { image: require('../../assets/botiquin2.png'), correct: false },
+    { image: require('../../assets/botiquin3.png'), correct: false },
+  ],
+  [
+    { image: require('../../assets/cuchilla1.png'), correct: false },
+    { image: require('../../assets/cuchilla2.png'), correct: false },
+    { image: require('../../assets/cuchilla3.png'), correct: false },
+    { image: require('../../assets/correct_toallas.png'), correct: true },
+  ],
+];

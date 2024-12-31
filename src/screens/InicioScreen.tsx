@@ -1,6 +1,6 @@
 import React, { useRef, useState, useEffect } from 'react';
 import Carousel, { ParallaxImage } from 'react-native-snap-carousel-v4';
-import { View, Image, Text, Dimensions, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Image, Modal,Text,TextInput, Button,Dimensions, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import BackgroundWrapper from './BackgroundWrapper';
@@ -10,12 +10,151 @@ import { DATAINICIO } from '../data/dataInicio';  // Importa DATAINICIO desde el
 
 const { width: screenWidth } = Dimensions.get('window');
 
+
+// const clearAsyncStorage = async () => {
+//   try {
+//     await AsyncStorage.clear();
+//     console.log('AsyncStorage cleared successfully.');
+//   } catch (error) {
+//     console.error('Error clearing AsyncStorage:', error);
+//   }
+// }; 
+// clearAsyncStorage()  
+
+
+const WelcomeModal = ({ visible, onClose, userName, onSaveName }) => {
+  const [name, setName] = useState(userName || '');  // Cargar el nombre actual
+
+  const handleSave = async () => {
+    if (name.trim()) {
+      try {
+        // Sobrescribir el nombre guardado en AsyncStorage
+        await AsyncStorage.setItem('userName', name);
+        onSaveName(name);  // Pasar el nombre guardado a la pantalla principal
+        onClose();  // Cerrar el modal
+      } catch (error) {
+        console.error('Error al guardar el nombre:', error);
+      }
+    } else {
+      console.log('Por favor ingresa un nombre válido.');
+    }
+  };
+
+  return (
+    <Modal
+      transparent={true}
+      visible={visible}
+      animationType="slide"
+      onRequestClose={onClose}
+    >
+      <View style={styles.overlay}>
+        <View style={styles.modalContainer}>
+        <Image
+            source={require('../../assets/icon_ninos.png')} // Asegúrate de que esta ruta sea la correcta
+            style={styles.dogImage}
+          />
+          <Text style={styles.title}>¡Hola amigo!</Text>
+          <TextInput
+            placeholder="Ingresa tu nombre"
+            value={name}
+            onChangeText={(text) => setName(text.toUpperCase())}
+            style={styles.input}
+            autoFocus={true}  // Enfocar el input automáticamente
+          />
+          <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
+  <Text style={styles.saveButtonText}>Guardar</Text>
+</TouchableOpacity>
+          <TouchableOpacity style={styles.closeButton} onPress={onClose}>
+            <Text style={styles.closeButtonText}>X</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </Modal>
+  );
+};
+
+
 const InicioScreen = () => {
   const [entries, setEntries] = useState(DATAINICIO);
   const [ratings, setRatings] = useState<{ [key: string]: number }>({});
   const [randomEntry, setRandomEntry] = useState(null);
+  const [userName, setUserName] = useState('');
+  const [avatar, setAvatar] = useState('');
+  const [isWelcomeVisible, setIsWelcomeVisible] = useState(false);
   const carouselRef = useRef(null);
   const navigation = useNavigation();
+
+   // Esta función se usa para abrir el modal cuando se selecciona el nombre
+   const handleOpenNameModal = () => {
+    setUserName('');
+    setIsWelcomeVisible(true);  // Mostrar el modal
+    // console.log('aqui')
+    // console.log(isWelcomeVisible)
+  };
+
+
+  // useEffect(() => {
+  //   console.log(isWelcomeVisible)
+  //   const loadUserData = async () => {
+  //     try {
+  //       const savedName = await AsyncStorage.getItem('userName');
+  //       const savedAvatar = await AsyncStorage.getItem('avatar');
+  //       if (savedName) {
+  //         setUserName(savedName);
+  //         // console.log(savedName)
+  //       }
+  //       if (savedAvatar) {
+  //         setAvatar(savedAvatar);  
+  //       }
+  //       // Mostrar modal solo si no hay nombre guardadoA
+  //       setIsWelcomeVisible(!savedName);
+  //     } catch (error) {
+  //       console.error('Error al cargar los datos del usuario:', error);
+  //     }
+  //   };
+  //   const interval = setInterval(() => {
+  //     loadUserData();
+  //   }, 1000);
+    
+  //   loadUserData();
+  //   setEntries(DATAINICIO);
+  //   setRandomEntry(DATAINICIO[Math.floor(Math.random() * DATAINICIO.length)]);
+  // }, []);
+
+  useEffect(() => {
+    const loadUserData = async () => {
+      try {
+        const savedName = await AsyncStorage.getItem('userName');
+        const savedAvatar = await AsyncStorage.getItem('avatar');
+        if (savedName) {
+          setUserName(savedName);
+        }
+        if (savedAvatar) {
+          setAvatar(savedAvatar);
+        }
+        setIsWelcomeVisible(!savedName);
+      } catch (error) {
+        console.error('Error al cargar los datos del usuario:', error);
+      }
+    };
+  
+    loadUserData();
+    setEntries(DATAINICIO);
+    setRandomEntry(DATAINICIO[Math.floor(Math.random() * DATAINICIO.length)]);
+  }, []);  // Ejecuta una sola vez al montar el componente
+  
+
+  const handleSaveName = async (newName) => {
+    try {
+      await AsyncStorage.setItem('userName', newName);
+      setUserName(newName);
+      setIsWelcomeVisible(false);  // Cerrar el modal después de guardar
+    } catch (error) {
+      console.error('Error al guardar el nombre:', error);
+    }
+  };
+
+
 
   useFocusEffect(
     React.useCallback(() => {
@@ -94,7 +233,13 @@ const InicioScreen = () => {
         showsVerticalScrollIndicator={false} 
         showsHorizontalScrollIndicator={false}>
         <View style={styles.container}>
-          <Text style={styles.welcomeText}>¡Bienvenido!</Text>
+        {/* Touchable para abrir el modal al tocar el nombre */}
+        <TouchableOpacity onPress={handleOpenNameModal}>  
+            <Text style={styles.welcomeText}>
+              {userName ? `¡Bienvenido, ${userName}!` : '¡Bienvenido!'}
+            </Text>
+          </TouchableOpacity>
+
 
           {randomEntry && (
             <TouchableOpacity onPress={() => handlePress(randomEntry)} style={styles.coverCard}>
@@ -140,6 +285,13 @@ const InicioScreen = () => {
           />
         </View>
       </ScrollView>
+      <WelcomeModal
+            visible={isWelcomeVisible}
+            onClose={() => setIsWelcomeVisible(false)}
+            userName={userName}
+            onSaveName={setUserName}  // Pasar la función para guardar el nombre
+          />
+ 
     </BackgroundWrapper>
   );
 };
@@ -178,9 +330,10 @@ const styles = StyleSheet.create({
   coverTitle: {
     fontSize: 22,
     fontWeight: 'bold',
-    color: 'black',
+    color: '#758a4a',
     marginBottom: 5,
     textAlign: 'center',
+
   },
   coverContent: {
     fontSize: 14,
@@ -197,12 +350,13 @@ const styles = StyleSheet.create({
   welcomeText: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: 'black',
+    color: 'white', 
     marginVertical: 20,
     textAlign: 'left',
     alignSelf: 'flex-start',
     width: '100%',
     right: -20,
+    bottom:20
   },
   carouselContainer: {
     flex: 1,
@@ -243,8 +397,9 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 18,
-    color: 'black',
+    color: 'green',
     fontWeight: 'bold',
+    marginBottom:15
   },
   subtitle: {
     fontSize: 14,
@@ -254,6 +409,91 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     marginTop: 10,
     justifyContent: 'flex-start'
+  },
+  modalContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    // backgroundColor: 'rgba(0,0,0,0.5)',
+    padding: 20,
+    backgroundColor: '#ffeb3b',
+    borderRadius: 20,
+    width: '80%',
+    height: '50%',
+    
+  },
+  input: {
+    width: '90%',
+    height: 50,
+    borderColor: '#ccc',
+    borderWidth: 2,
+    marginBottom: 20,
+    paddingHorizontal: 20,
+    borderRadius: 10,
+  },
+  overlay: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+
+  // title: {
+  //   fontSize: 24,
+  //   fontWeight: 'bold',
+  //   color: '#ff5722',
+  //   marginBottom: 10,
+  // },
+  message: {
+    fontSize: 18,
+    color: '#333',
+    textAlign: 'center',
+    marginBottom: 20,
+  },
+  button: {
+    width: '100%',
+    padding: 15,
+    borderRadius: 10,
+    marginBottom: 10,
+    alignItems: 'center',
+  },
+  yesButton: {
+    backgroundColor: '#4caf50',
+  },
+  noButton: {
+    backgroundColor: '#f44336',
+  },
+  buttonText: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  closeButton: {
+    marginTop: 20,
+  },
+  closeButtonText: {
+    fontSize: 24,
+    color: '#ff5722',
+    fontWeight: 'bold',
+    bottom:215,
+    paddingLeft:280
+  },
+  saveButton: {
+    backgroundColor: '#4CAF50',  // Color de fondo verde
+    padding: 10,
+    borderRadius: 10,
+    alignItems: 'center',
+    marginVertical: 15,  // Añade espacio vertical
+  },
+  saveButtonText: {
+    color: 'white',  // Color de texto blanco
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  dogImage: {
+    width: 100,   // Ajusta el tamaño de la imagen
+    height: 100,  // Ajusta el tamaño de la imagen
+    resizeMode: 'contain',
+    marginBottom: 10,  // Espacio entre la imagen y el texto
   },
 });
 

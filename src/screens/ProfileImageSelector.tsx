@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { View, Image, TouchableOpacity, StyleSheet, Alert, Animated } from 'react-native';
+import { View, Image, TouchableOpacity, StyleSheet, Animated } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const defaultImage = require('../../assets/perro.png'); // Imagen por defecto
 const images = [
-  require('../../assets/policia.png'),
-  require('../../assets/bombero.png'),
-  require('../../assets/profilePic.png'),
+  { id: '1', source: require('../../assets/policia.png') },
+  { id: '2', source: require('../../assets/bombero.png') },
+  { id: '3', source: require('../../assets/profilePic.png'), },
+  { id: '4', source: require('../../assets/perro.png'), },
 ];
 
 const ProfileImageSelector = () => {
@@ -14,36 +15,32 @@ const ProfileImageSelector = () => {
   const [showImageList, setShowImageList] = useState(false);
   const [animation] = useState(new Animated.Value(0)); // Valor inicial de animación
 
-  
   useEffect(() => {
     const loadImage = async () => {
       try {
-        const storedImage = await AsyncStorage.getItem('@profile_image');
-       
-        if (storedImage) {
-          setSelectedImage({ uri: storedImage });
+        const storedImageId = await AsyncStorage.getItem('@profile_image_id');
+        if (storedImageId) {
+          const selectedImageObj = images.find(image => image.id === storedImageId);
+          if (selectedImageObj) {
+            setSelectedImage(selectedImageObj.source);
+          }
         } else {
           // Guardar la imagen por defecto si no hay ninguna guardada
-          const defaultImageUri = Image.resolveAssetSource(defaultImage).uri;
-         
-          await AsyncStorage.setItem('@profile_image', defaultImageUri);
+          await AsyncStorage.setItem('@profile_image_id', 'default');
           setSelectedImage(defaultImage);
         }
       } catch (error) {
-       
+        console.error('Error loading image:', error);
       }
     };
-  
+
     loadImage();
   }, []);
-  
 
   const handleImageSelect = async (image) => {
     try {
-      const imageUri = Image.resolveAssetSource(image).uri;
-
-      await AsyncStorage.setItem('@profile_image', imageUri);
-      setSelectedImage(image);
+      await AsyncStorage.setItem('@profile_image_id', image.id);
+      setSelectedImage(image.source);
       setShowImageList(false);
       Animated.timing(animation, {
         toValue: 0,
@@ -51,26 +48,16 @@ const ProfileImageSelector = () => {
         useNativeDriver: false,
       }).start();
     } catch (error) {
-      
+      console.error('Error saving image:', error);
     }
   };
-  
 
   const toggleImageList = () => {
-    if (showImageList) {
-      Animated.timing(animation, {
-        toValue: 0, // Ocultar la lista de imágenes
-        duration: 300,
-        useNativeDriver: false,
-      }).start(() => setShowImageList(false));
-    } else {
-      setShowImageList(true);
-      Animated.timing(animation, {
-        toValue: 1, // Mostrar la lista de imágenes
-        duration: 300,
-        useNativeDriver: false,
-      }).start();
-    }
+    Animated.timing(animation, {
+      toValue: showImageList ? 0 : 1,
+      duration: 300,
+      useNativeDriver: false,
+    }).start(() => setShowImageList(!showImageList));
   };
 
   const imageListWidth = animation.interpolate({
@@ -84,13 +71,13 @@ const ProfileImageSelector = () => {
         <Image source={selectedImage} style={styles.image} />
       </TouchableOpacity>
       <Animated.View style={[styles.imageListContainer, { width: imageListWidth }]}>
-        {showImageList && images.map((image, index) => (
+        {showImageList && images.map((image) => (
           <TouchableOpacity
-            key={index}
+            key={image.id}
             onPress={() => handleImageSelect(image)}
             style={styles.imageButton}
           >
-            <Image source={image} style={styles.imageThumbnail} />
+            <Image source={image.source} style={styles.imageThumbnail} />
           </TouchableOpacity>
         ))}
       </Animated.View>
@@ -113,14 +100,14 @@ const styles = StyleSheet.create({
     height: 40,
     borderRadius: 50,
     backgroundColor: 'white',
-    left: -100
+    left: -115
   },
   imageListContainer: {
     overflow: 'hidden', // Asegura que el contenido no se desborde del contenedor
     flexDirection: 'row',
     alignItems: 'flex-start', // Alinear la lista a la izquierda
     position: 'absolute', // Para que la lista se coloque encima de otros elementos
-    left: -250, // Ajusta la posición para que se despliegue a la izquierda del perfil
+    left: -315, // Ajusta la posición para que se despliegue a la izquierda del perfil
     top: 10, // Ajusta según sea necesario
   },
   imageButton: {
@@ -133,7 +120,7 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: '#ddd',
     left: 15,
-    bottom: 0
+    bottom: -7
   },
 });
 

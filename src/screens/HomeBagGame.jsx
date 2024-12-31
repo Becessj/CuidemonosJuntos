@@ -1,38 +1,86 @@
-import React from 'react';
-import { View, TouchableOpacity, Image, StyleSheet, Text } from 'react-native';
+import React, { useRef, useEffect, useState } from 'react';
+import { View, TouchableOpacity, Image, StyleSheet, Text, Animated } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import Icon from 'react-native-vector-icons/FontAwesome';
 import BackgroundWrapper2 from './BackgroundWrapper2';
+import { ScrollView } from 'react-native-gesture-handler';
+import OnboardingPrompt from './OnboardingPrompt';
 
 const HomeBagGame = () => {
   const navigation = useNavigation();
+  const bounceValue = useRef(new Animated.Value(0)).current;
+  const [isModalVisible, setIsModalVisible] = useState(false); // Cambiado a false por defecto
+
+  useEffect(() => {
+    // Animación de rebote
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(bounceValue, {
+          toValue: -10, // Mueve la mano hacia arriba
+          duration: 500,
+          useNativeDriver: true,
+        }),
+        Animated.timing(bounceValue, {
+          toValue: 0, // Regresa a la posición original
+          duration: 500,
+          useNativeDriver: true,
+        }),
+      ])
+    ).start();
+  }, [bounceValue]);
+
+  // Función para mostrar el modal de onboarding
+  const showOnboardingPrompt = () => {
+    setIsModalVisible(true);
+  };
 
   return (
     <BackgroundWrapper2>
-      <View style={styles.container}>
-      <Text style={styles.header}>Diviértete con estos elementos</Text>
-        <View style={styles.row}>
-          <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('OnboardingScreen')}>
-            <Image source={require('../../assets/mochilaninos.png')} style={styles.image} />
-            <View style={styles.titleContainer}>
-              <Text style={styles.title}>¿Quieres jugar?</Text>
+      <ScrollView>
+        <View style={styles.container}>
+          <Text style={styles.header}>¡PREPARATE YA!</Text>
+
+          <TouchableOpacity style={styles.button} onPress={showOnboardingPrompt}>
+            <View style={styles.titleContainer1}>
+              <View style={styles.titleContainer}>
+                <Image source={require('../../assets/mochilaninos.png')} style={styles.image} />
+                <Text style={styles.title}>Aprende Jugando</Text>
+              </View>
+              {/* Icono de la mano con animación */}
+              <Animated.View style={{ transform: [{ translateY: bounceValue }] }}>
+                <Icon name="hand-o-up" size={30} color="red" style={styles.icon} />
+              </Animated.View>
             </View>
           </TouchableOpacity>
+
           <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('BagScreen')}>
-            <Image source={require('../../assets/mochilaadultos.png')} style={styles.image} />
-            <View style={styles.titleContainer}>
-              <Text style={styles.title}>¿Estás preparado ante un SISMO?</Text>
+            <View style={styles.titleContainer1}>
+              <View style={styles.titleContainer}>
+                <Image source={require('../../assets/mochilaadultos.png')} style={styles.image} />
+                <Text style={styles.title}>¿Preparaste tu MOCHILA?</Text>
+              </View>
+              {/* Icono de la mano con animación */}
+              <Animated.View style={{ transform: [{ translateY: bounceValue }] }}>
+                <Icon name="hand-o-up" size={30} color="red" style={styles.icon} />
+              </Animated.View>
             </View>
           </TouchableOpacity>
-        </View>
-        <View style={styles.row}>
+
           <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('ReserveBoxScreen')}>
-            <Image source={require('../../assets/home3.png')} style={styles.image} />
-            <View style={styles.titleContainer}>
-              <Text style={styles.title}>Caja de Reserva</Text>
+            <View style={styles.titleContainer1}>
+              <View style={styles.titleContainer}>
+                <Image source={require('../../assets/home3.png')} style={styles.image} />
+                <Text style={styles.title}>Caja de Reserva</Text>
+              </View>
+              {/* Icono de la mano con animación */}
+              <Animated.View style={{ transform: [{ translateY: bounceValue }] }}>
+                <Icon name="hand-o-up" size={30} color="red" style={styles.icon} />
+              </Animated.View>
             </View>
           </TouchableOpacity>
         </View>
-      </View>
+      </ScrollView>
+      <OnboardingPrompt visible={isModalVisible} onClose={() => setIsModalVisible(false)} />
     </BackgroundWrapper2>
   );
 };
@@ -42,47 +90,59 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    bottom: -25,
   },
   header: {
     fontSize: 29,
     fontWeight: 'bold',
-    color: '#fff',
-    marginBottom: 20,
+    color: 'white',
+    marginBottom: 70,
+    width: 1000,
     textAlign: 'center',
-    backgroundColor: '#dde433',
+    // backgroundColor: 'red',
     borderRadius: 10,
-    padding:5
-   
-  },
-  row: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    width: '100%',
-    marginBottom: 20,
+    padding: 5,
   },
   button: {
-    flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    marginHorizontal: 10,
+    marginBottom: 40,
   },
   image: {
-    width: 100,
-    height: 100,
+    width: 110,
+    height: 110,
     resizeMode: 'contain',
+    position: 'absolute',
+    right: -30,
+    top: -55,
   },
   titleContainer: {
-    backgroundColor: '#c9d226', // Fondo gris
-    padding: 10,
-    borderRadius: 5,
-    marginTop: 10,
+    backgroundColor: 'red',
+    paddingVertical: 5,
+    paddingHorizontal: 20,
+    borderRadius: 20,
+    alignItems: 'center',
+  },
+  titleContainer1: {
+    backgroundColor: '#eaeaea',
+    paddingVertical: 20,
+    paddingHorizontal: 20,
+    paddingLeft: 5,
+    paddingRight: 5,
+    paddingBottom: 5,
+    paddingTop: 5,
+    borderRadius: 20,
     alignItems: 'center',
   },
   title: {
-    fontSize: 16,
+    fontSize: 10,
     fontWeight: 'bold',
     color: '#fff',
-    textAlign:'center'
+    textAlign: 'center',
+    marginTop: 50,
+  },
+  icon: {
+    marginTop: 10, // Espacio entre el texto y el ícono
   },
 });
 

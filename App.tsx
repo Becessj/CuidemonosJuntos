@@ -15,9 +15,10 @@ import GameScreen from './src/screens/GameScreen';
 import HomeBagGame from './src/screens/HomeBagGame';
 import OnboardingScreen from './src/screens/OnboardingScreen';
 import EmergenciaScreen from './src/screens/EmergenciaScreen'; // Ajusta la ruta según corresponda
-
+import TopicSelection from './src/screens/TopicSelection';
 import Icon from 'react-native-vector-icons/Ionicons';
 import ProfileImageSelector from './src/screens/ProfileImageSelector';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Importa las imágenes que vas a usar para los íconos
 import HomeIcon from './assets/home1.png';
@@ -25,6 +26,35 @@ import BackpackIcon from './assets/home2.png';
 import InventoryIcon from './assets/home3.png';
 import PreguntasIcon from './assets/pregunta.png';
 import EmergenciaIcon from './assets/emergencia.png';
+
+import * as Notifications from 'expo-notifications';
+  
+// const clearAsyncStorage = async () => {
+//   try {
+//     await AsyncStorage.clear();
+//     console.log('AsyncStorage cleared successfully.');
+//   } catch (error) {
+//     console.error('Error clearing AsyncStorage:', error);
+//   }
+// }; 
+// clearAsyncStorage()   
+const requestNotificationPermissions = async () => {
+  const { status } = await Notifications.getPermissionsAsync();
+  let finalStatus = status;
+  
+  if (status !== 'granted') {
+    const { status } = await Notifications.requestPermissionsAsync();
+    finalStatus = status;
+    // console.log(finalStatus)
+  }
+  
+  if (finalStatus !== 'granted') {
+    // console.log('Permisos de notificación no concedidos.');
+    return false;
+  }
+  
+  return true;
+};
 // Crear el Stack Navigator
 const Stack = createStackNavigator();
 
@@ -37,7 +67,9 @@ const StackNavigator = () => {
       <Stack.Screen name="GeneralArticlesScreen" component={GeneralArticlesScreen} />
       <Stack.Screen name="BagScreen" component={BagScreen} />
       <Stack.Screen name="GameScreen" component={GameScreen} />
+      <Stack.Screen name="HomeBagGame" component={HomeBagGame} />
       <Stack.Screen name="ReserveBoxScreen" component={ReserveBoxScreen} />
+      <Stack.Screen name="TopicSelection" component={TopicSelection} />
     </Stack.Navigator>
   );
 };
@@ -142,7 +174,7 @@ const TabNavigator = () => {
       /> */}
       <Tab.Screen
         name="PreguntasScreen"
-        component={ReserveBoxScreen}
+        component={TopicSelection}
         options={{ title: 'Responde' }}
       />
        <Tab.Screen
@@ -162,8 +194,8 @@ const CustomDrawerContent = (props) => {
   return (
     <DrawerContentScrollView {...props}>
       <View style={styles.drawerHeader}>
-        <Image source={require('./assets/leftArrow.png')} style={styles.logo} />
-        <Text style={styles.appName}>CUIDEMONOS</Text>
+        <Image source={require('./assets/icon.png')} style={styles.logo} />
+        <Text style={styles.appName}>PREPÁRATE YA</Text>
       </View>
       <DrawerItemList {...props} />
       <DrawerItem
@@ -214,22 +246,68 @@ const App = () => {
   const [appIsReady, setAppIsReady] = useState(false);
   const [profileImage, setProfileImage] = useState('');
 
+  const [stars, setStars] = useState(0);
+  const loadStars = async () => {
+    try {
+      const storedStars = await AsyncStorage.getItem('stars');
+      // console.error(storedStars);
+      if (storedStars) {
+        setStars(JSON.parse(storedStars));
+      }
+    } catch (error) {
+      console.error('Error loading stars:', error);
+    }
+  };
+useEffect(() => {
+  loadStars();
+}, []);
+
+
+  useEffect(() => {
+    const prepareApp = async () => {
+      await requestNotificationPermissions();
+    };
+
+    prepareApp();
+
+    if (Platform.OS === 'android') {
+      Notifications.setNotificationChannelAsync('default', {
+        name: 'default',
+        importance: Notifications.AndroidImportance.MAX,
+        sound: true,
+      });
+      // console.log('se ejecutra');
+    }
+  }, []);
+
+  // const interval = setInterval(() => {
+  //   console.error('xddddd');
+  //   loadStars();
+  // }, 1000);
+  
+  const storeStars = async (newStars) => {
+    try {
+      await AsyncStorage.setItem('stars', JSON.stringify(newStars));
+    } catch (error) {
+      console.error('Error saving stars:', error);
+    }
+  };
+  
   useEffect(() => {
     const loadProfileImage = async () => {
       try {
-      
         const storedImage = await AsyncStorage.getItem('@profile_image');
-   
+        // console.log('Profile Image URI:', storedImage); // Agregar este log
         if (storedImage) {
           setProfileImage(storedImage);
         }
       } catch (error) {
-        
+        console.log('Error loading profile image:', error);
       }
     };
-
     loadProfileImage();
   }, []);
+  
 
   return (
     <NavigationContainer>
@@ -238,7 +316,7 @@ const App = () => {
         {/* Agregar los componentes en la esquina superior derecha */}
         <View style={styles.topRightContainer}>
           <View style={styles.starContainer}>
-            <Text style={styles.starText}>3</Text>
+          <Text style={styles.starText}>{stars}</Text>
             <Icon name="star" size={20} color="#ffd700" style={styles.startIcon}/>
             {profileImage ? (
         <Image source={{ uri: profileImage }} style={styles.profileImage} />
@@ -295,10 +373,12 @@ const styles = StyleSheet.create({
     width: 100,
     height: 100,
     marginBottom: 10,
+    borderRadius:50
   },
   appName: {
     fontSize: 18,
     fontWeight: 'bold',
+    color: '#7ed957'
   },
   topRightContainer: {
     position: 'absolute',
@@ -318,25 +398,25 @@ const styles = StyleSheet.create({
   starContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    right: -5,
+    right: 5,
     backgroundColor: '#5dba4c',
     borderRadius: 15,
-    width:55,
+    width:60,
     height:30,
     bottom: -7
   },
   starText: {
-    marginLeft: 5,
+    marginLeft: 8,
     fontSize: 16,
     color: 'white',
     fontWeight:'bold',
-    right:-8
+    right:-1
   },
   startIcon:{
     marginLeft: 5,
     fontSize: 16,
     fontWeight:'bold',
-    right:-8
+    right:0
   },
   tabIcon: {
     width: 40, // Ancho de la imagen del ícono

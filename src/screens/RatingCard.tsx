@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import LottieView from 'lottie-react-native';
 
 interface RatingCardProps {
   id: string;
@@ -12,6 +13,29 @@ interface RatingCardProps {
 const RatingCard: React.FC<RatingCardProps> = ({ id, correctAnswer, onRatingUpdate }) => {
   const [rating, setRating] = useState<number>(0);
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
+  const [showLottieCorrect, setShowLottieCorrect] = useState(false);
+  const [showLottieIncorrect, setShowLottieIncorrect] = useState(false);
+
+  const getStars = async () => {
+    try {
+      const stars = await AsyncStorage.getItem('stars');
+      return stars ? parseInt(stars) : 0;
+    } catch (error) {
+      // console.error('Error obteniendo estrellas', error);
+      return 0;
+    }
+  };
+
+  const updateStars = async (additionalStars: number) => {
+    try {
+      const currentStars = await getStars();
+      const newStarCount = currentStars + additionalStars;
+      await AsyncStorage.setItem('stars', newStarCount.toString());
+      // console.log(`Estrellas actualizadas: ${newStarCount}`);
+    } catch (error) {
+      // console.error('Error actualizando estrellas', error);
+    }
+  };
 
   useEffect(() => {
     const fetchRating = async () => {
@@ -32,7 +56,6 @@ const RatingCard: React.FC<RatingCardProps> = ({ id, correctAnswer, onRatingUpda
     setRating(newRating);
     try {
       await AsyncStorage.setItem(`rating_${id}`, newRating.toString());
-      // console.log('Calificación guardada:', newRating);
       if (onRatingUpdate) {
         onRatingUpdate(newRating);
       }
@@ -43,18 +66,20 @@ const RatingCard: React.FC<RatingCardProps> = ({ id, correctAnswer, onRatingUpda
 
   const handleSubmit = async () => {
     if (selectedOption === null) {
-      Alert.alert('Error', 'Por favor, selecciona una opción.');
+      // Muestra un mensaje o algún otro feedback si no se selecciona una opción.
       return;
     }
 
     try {
       await AsyncStorage.setItem(`selectedOption_${id}`, selectedOption);
       if (selectedOption === correctAnswer) {
-       
-        Alert.alert('Éxito', '¡Respuesta correcta!');
+        setShowLottieCorrect(true);
+        await updateStars(1);
+        setTimeout(() => setShowLottieCorrect(false), 3000); // Oculta después de 3 segundos
       } else {
-      
-        Alert.alert('Incorrecto', 'Respuesta incorrecta.');
+        setShowLottieIncorrect(true);
+        await updateStars(-1);
+        setTimeout(() => setShowLottieIncorrect(false), 3000); // Oculta después de 3 segundos
       }
     } catch (error) {
       console.error('Error al guardar la opción seleccionada:', error);
@@ -91,6 +116,23 @@ const RatingCard: React.FC<RatingCardProps> = ({ id, correctAnswer, onRatingUpda
       <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
         <Text style={styles.submitButtonText}>Enviar</Text>
       </TouchableOpacity>
+
+      {showLottieCorrect && (
+        <LottieView
+          source={require('../../assets/congrats.json')}
+          autoPlay
+          loop={false}
+          style={styles.lottie_correct}
+        />
+      )}
+      {showLottieIncorrect && (
+        <LottieView
+          source={require('../../assets/wrong.json')}
+          autoPlay
+          loop={false}
+          style={styles.lottie_incorrect}
+        />
+      )}
     </View>
   );
 };
@@ -152,6 +194,16 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 18,
     fontWeight: 'bold',
+  },
+  lottie_correct: {
+    width: 350,
+    height: 350,
+    bottom: 320
+  },
+  lottie_incorrect: {
+    width: 150,
+    height: 150,
+    bottom:220
   },
 });
 

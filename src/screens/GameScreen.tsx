@@ -1,292 +1,123 @@
-import React, { useState, useRef } from 'react';
-import { View, Text, StyleSheet, Image, Dimensions } from 'react-native';
-import { PanGestureHandler, GestureHandlerRootView } from 'react-native-gesture-handler';
-import Animated, { useSharedValue, useAnimatedStyle, withSpring } from 'react-native-reanimated';
-import LottieView from 'lottie-react-native';
-import BackgroundWrapper from './BackgroundWrapper';
-import CustomText from './CustomText';
+import React from 'react';
+import { View, Text, StyleSheet, Dimensions, TouchableOpacity, Image } from 'react-native';
+import Animated, { useSharedValue, useAnimatedStyle, interpolate, withSpring } from 'react-native-reanimated';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useNavigation } from '@react-navigation/native';
 
-const shuffleArray = (array: any[]) => {
-  return array
-    .map((item) => ({ item, sort: Math.random() }))
-    .sort((a, b) => a.sort - b.sort)
-    .map(({ item }) => item);
-};
+const { width } = Dimensions.get('window');
+const OnboardingScreen = () => {
+  const navigation = useNavigation();
+  const translateX = useSharedValue(0);
 
-const initialRounds = [
-  [
-    { image: require('../../assets/agua1.png'), correct: false },
-    { image: require('../../assets/agua2.png'), correct: false },
-    { image: require('../../assets/agua3.png'), correct: false },
-    { image: require('../../assets/correct_agua.png'), correct: true },
-  ],
-  [
-    { image: require('../../assets/correct_noperecibles.png'), correct: true },
-    { image: require('../../assets/noperecibles1.png'), correct: false },
-    { image: require('../../assets/noperecibles2.png'), correct: false },
-    { image: require('../../assets/noperecibles3.png'), correct: false },
-  ],
-  [
-    { image: require('../../assets/botiquin4.png'), correct: false },
-    { image: require('../../assets/correct_botiquin1.png'), correct: true },
-    { image: require('../../assets/botiquin2.png'), correct: false },
-    { image: require('../../assets/botiquin3.png'), correct: false },
-  ],
-  [
-    { image: require('../../assets/cuchilla1.png'), correct: false },
-    { image: require('../../assets/cuchilla2.png'), correct: false },
-    { image: require('../../assets/cuchilla3.png'), correct: false },
-    { image: require('../../assets/correct_cuchilla.png'), correct: true },
-  ],
-  [
-    { image: require('../../assets/correct_linterna.png'), correct: true },
-    { image: require('../../assets/linterna1.png'), correct: false },
-    { image: require('../../assets/linterna2.png'), correct: false },
-    { image: require('../../assets/linterna3.png'), correct: false },
-  ],
-  [
-    { image: require('../../assets/correct_mantas.png'), correct: true },
-    { image: require('../../assets/mantas1.png'), correct: false },
-    { image: require('../../assets/mantas2.png'), correct: false },
-    { image: require('../../assets/mantas3.png'), correct: false },
-  ],
-  [
-    { image: require('../../assets/correct_radio.png'), correct: true },
-    { image: require('../../assets/radio1.png'), correct: false },
-    { image: require('../../assets/radio2.png'), correct: false },
-    { image: require('../../assets/radio3.png'), correct: false },
-  ],
-  [
-    { image: require('../../assets/correct_utiles.png'), correct: true },
-    { image: require('../../assets/utiles1.png'), correct: false },
-    { image: require('../../assets/utiles2.png'), correct: false },
-    { image: require('../../assets/utiles3.png'), correct: false },
-  ]
-];
-
-
-const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
-const bagSize = Math.min(screenWidth * 3, screenHeight * 0.4);
-
-const GameScreen = () => {
-  const [currentRound, setCurrentRound] = useState(0);
-  const [draggingIndex, setDraggingIndex] = useState<number | null>(null);
-  const [score, setScore] = useState(0);
-  const [showCongrats, setShowCongrats] = useState(false);
-  const [showFinalAnimation, setShowFinalAnimation] = useState(false);
-  const [showWrongAnimation, setShowWrongAnimation] = useState(false);
-
-  const congratsAnimation = useRef<LottieView>(null);
-  const finalAnimation = useRef<LottieView>(null);
-  const wrongAnimation = useRef<LottieView>(null);
-
-  const [rounds, setRounds] = useState(initialRounds.map(round => shuffleArray(round)));
-  const images = rounds[currentRound];
-
-  const translateXArray = images.map(() => useSharedValue(0));
-  const translateYArray = images.map(() => useSharedValue(0));
-
-  const createAnimatedStyle = (index: number) =>
-    useAnimatedStyle(() => ({
-      transform: [
-        { translateX: translateXArray[index].value },
-        { translateY: translateYArray[index].value },
-      ],
-    }));
-
-  const onDragEnd = (itemIndex: number) => {
-    if (images[itemIndex].correct) {
-      setScore(score + 1);
-      setShowCongrats(true);
-      congratsAnimation.current?.play();
-
-      setTimeout(() => {
-        setShowCongrats(false);
-        nextRound();
-      }, 2000);
+  // Maneja la navegación y guarda el estado del onboarding
+  const handleNextPage = async () => {
+    if (translateX.value >= 2 * width) {
+      await AsyncStorage.setItem('hasSeenOnboarding', 'true'); // Marcar que el onboarding ya se completó
+      navigation.replace('MyAddress'); // Ir a la pantalla de dirección
     } else {
-      setShowWrongAnimation(true);
-      wrongAnimation.current?.play();
-
-      setTimeout(() => {
-        setShowWrongAnimation(false);
-        nextRound();
-      }, 2000);
-    }
-
-    translateXArray[itemIndex].value = withSpring(0);
-    translateYArray[itemIndex].value = withSpring(0);
-    setDraggingIndex(null);
-  };
-
-  const nextRound = () => {
-    if (currentRound < rounds.length - 1) {
-      setCurrentRound(currentRound + 1);
-    } else {
-      if (score >= 5) {
-        setShowFinalAnimation(true);
-        finalAnimation.current?.play();
-
-        setTimeout(() => {
-          resetGame();
-        }, 4000);
-      } else {
-        // Aquí podrías añadir otra animación para un puntaje bajo si lo deseas
-        resetGame();
-      }
+      translateX.value += width;
     }
   };
 
-  const resetGame = () => {
-    setShowFinalAnimation(false);
-    setCurrentRound(0);
-    setScore(0);
-    setRounds(initialRounds.map(round => shuffleArray(round)));
-  };
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ translateX: -translateX.value }],
+  }));
 
   return (
-    <BackgroundWrapper>
-    <GestureHandlerRootView style={styles.container}>
-      <View style={styles.headerContainer}>
-        <CustomText type="titlebag">MOCHILA DE EMERGENCIA</CustomText>
-      </View>
-      <Text style={styles.subHeaderText}>¿Qué debo llevar?</Text>
-
-      <View style={styles.bagContainer}>
-        <Image
-          source={require('../../assets/bag.png')}
-          style={[styles.bag, { width: bagSize, height: bagSize }]}
-        />
-      </View>
-
-      <View style={styles.itemsContainer}>
-        {images.map((item, index) => (
-          <PanGestureHandler
-            key={index}
-            enabled={draggingIndex === null || draggingIndex === index}
-            onGestureEvent={(event) => {
-              if (draggingIndex === index || draggingIndex === null) {
-                translateXArray[index].value = event.nativeEvent.translationX;
-                translateYArray[index].value = event.nativeEvent.translationY;
-              }
-            }}
-            onBegan={() => setDraggingIndex(index)}
-            onEnded={() => onDragEnd(index)}
-          >
-            <Animated.View style={[styles.imageContainer, createAnimatedStyle(index)]}>
-              <Image source={item.image} style={styles.image} />
-            </Animated.View>
-          </PanGestureHandler>
-        ))}
-      </View>
-
-      {(showCongrats || showFinalAnimation || showWrongAnimation) && (
-        <View style={styles.overlay}>
-          {showCongrats && (
-            <LottieView
-              ref={congratsAnimation}
-              source={require('../../assets/congrats.json')}
-              autoPlay
-              loop={false}
-              style={styles.lottie}
-            />
-          )}
-          {showFinalAnimation && (
-            <LottieView
-              ref={finalAnimation}
-              source={require('../../assets/finalAnimation.json')}
-              autoPlay
-              loop={false}
-              style={styles.lottie}
-            />
-          )}
-          {showWrongAnimation && (
-            <LottieView
-              ref={wrongAnimation}
-              source={require('../../assets/wrong.json')}
-              autoPlay
-              loop={false}
-              style={styles.lottie}
-            />
-          )}
+    <View style={styles.container}>
+      <Animated.View style={[styles.slider, animatedStyle]}>
+        <View style={styles.page}>
+          <Image source={require('../../assets/page1.jpg')} style={styles.image} />
+          <Text style={styles.text}>Spend money abroad, and track your expenses</Text>
         </View>
-      )}
-    </GestureHandlerRootView>
-    </BackgroundWrapper>
+        <View style={styles.page}>
+          <Image source={require('../../assets/page2.jpg')} style={styles.image} />
+          <Text style={styles.text}>Save and organize all your expenses in one place</Text>
+        </View>
+        <View style={styles.page}>
+          <Image source={require('../../assets/page3.jpg')} style={styles.image} />
+          <Text style={styles.text}>Start planning your next trip with ease</Text>
+        </View>
+      </Animated.View>
+      <View style={styles.footer}>
+        <View style={styles.dotsContainer}>
+          {[0, 1, 2].map((index) => {
+            const dotStyle = useAnimatedStyle(() => {
+              const scale = withSpring(translateX.value === index * width ? 1.5 : 1);
+              const opacity = interpolate(
+                translateX.value,
+                [index * width - width, index * width, index * width + width],
+                [0.3, 1, 0.3]
+              );
+              return { transform: [{ scale }], opacity };
+            });
+            return <Animated.View key={index} style={[styles.dot, dotStyle]} />;
+          })}
+        </View>
+        <TouchableOpacity onPress={handleNextPage} style={styles.button}>
+          <Text style={styles.buttonText}>→</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  
+    backgroundColor: '#fff',
   },
-  headerContainer: {
-    backgroundColor: 'red',
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 50,
-    marginTop: 60,
-    width: screenWidth * 0.9,
-    bottom:50
+  slider: {
+    flexDirection: 'row',
+    width: width * 3,
+    height: '75%',
   },
-  headerText: {
-    color: 'white',
-    fontSize: 20,
-    fontWeight: 'bold',
-    textAlign: 'center',
- // Usa la fuente personalizada aquí
-  },
-  subHeaderText: {
-    fontSize: 30,
-    color: 'black',
-    marginTop: 350,
-    bottom:140,
-    fontWeight:'bold'
- // Usa la fuente personalizada aquí
-  },
-  bagContainer: {
-    flex: 1,
+  page: {
+    width,
     alignItems: 'center',
     justifyContent: 'center',
-    position: 'absolute',
-    top: '15%',
-    bottom:330
-  },
-  itemsContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    width: '100%',
-    bottom:150
-  },
-  imageContainer: {
-    width: 100,
-    height: 100,
+    padding: 20,
   },
   image: {
-    width: '100%',
-    height: '100%',
+    width: 200,
+    height: 200,
     resizeMode: 'contain',
   },
-  bag: {
-    resizeMode: 'contain',
+  text: {
+    marginTop: 20,
+    fontSize: 18,
+    color: '#333',
+    textAlign: 'center',
   },
-  overlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)', // Capa opaca
+  footer: {
+    flex: 1,
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 20,
+  },
+  dotsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+  },
+  dot: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: '#555',
+    marginHorizontal: 5,
+  },
+  button: {
+    backgroundColor: '#007BFF',
+    width: 60,
+    height: 60,
+    borderRadius: 30,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  lottie: {
-    width: 500,
-    height: 500,
+  buttonText: {
+    color: '#fff',
+    fontSize: 24,
   },
 });
 
-export default GameScreen;
+export default OnboardingScreen;
